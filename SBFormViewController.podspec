@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'SBFormViewController'
-  s.version  = '0.1'
+  s.version  = '0.1.1'
   s.platform = :ios
   s.license  = 'MIT'
   s.summary  = 'Controller to move the view when the keyboard appear in forms'

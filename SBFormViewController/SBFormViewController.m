@@ -15,6 +15,9 @@
     
     BOOL keyboardShown;
     CGPoint originalPoint_;
+    
+    NSTimeInterval animationDuration_;
+    UIViewAnimationCurve animationCurve_;
 }
 
 @end
@@ -87,6 +90,12 @@
 }
 
 -(void)keyboardWillShow:(NSNotification *)notification {
+    NSDictionary *userInfo = notification.userInfo;
+    NSNumber *durationValue = userInfo[UIKeyboardAnimationDurationUserInfoKey];
+    animationDuration_ = durationValue.doubleValue;
+    NSNumber *curveValue = userInfo[UIKeyboardAnimationCurveUserInfoKey];
+    animationCurve_ = curveValue.intValue;
+    
     
     keyboardShown = YES;
     [self moveViewIfNecesary];
@@ -95,13 +104,27 @@
 -(void)keyboardWillHide:(NSNotification *)notification {
     keyboardShown = NO;
     
+    NSDictionary *userInfo = notification.userInfo;
+    NSNumber *durationValue = userInfo[UIKeyboardAnimationDurationUserInfoKey];
+    animationDuration_ = durationValue.doubleValue;
+    NSNumber *curveValue = userInfo[UIKeyboardAnimationCurveUserInfoKey];
+    animationCurve_ = curveValue.intValue;
+    
+    
     CGRect viewFrame = self.formView.frame;
     if (viewFrame.origin.y < originalPoint_.y) {
         
         viewFrame.origin.y = originalPoint_.y;
-        [UIView animateWithDuration:0.3 animations:^{
-            self.formView.frame = viewFrame;
-        }];
+        
+        
+        [UIView animateWithDuration:animationDuration_
+                              delay:0.0
+                            options:(animationCurve_ << 16)
+                         animations:^{
+                             self.formView.frame = viewFrame;
+                             currentField = nil;
+                         }
+                         completion:nil];
     }
 }
 
@@ -170,9 +193,15 @@
         
         CGRect viewFrame = self.formView.frame;
         viewFrame.origin.y -= deltaY;
-        [UIView animateWithDuration:0.3 animations:^{
-            self.formView.frame = viewFrame;
-        }];
+        
+        
+        [UIView animateWithDuration:animationDuration_
+                              delay:0.0
+                            options:(animationCurve_ << 16)
+                         animations:^{
+                             self.formView.frame = viewFrame;
+                         }
+                         completion:nil];
         
         //Do the down animation
     } else if (deltaY < 0) {
@@ -183,10 +212,13 @@
         if (viewFrame.origin.y > originalPoint_.y)
             viewFrame.origin.y = originalPoint_.y;
         
-        
-        [UIView animateWithDuration:0.3 animations:^{
-            self.formView.frame = viewFrame;
-        }];
+        [UIView animateWithDuration:animationDuration_
+                              delay:0.0
+                            options:(animationCurve_ << 16)
+                         animations:^{
+                             self.formView.frame = viewFrame;
+                         }
+                         completion:nil];
     }
 }
 
