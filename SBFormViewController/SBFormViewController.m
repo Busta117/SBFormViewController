@@ -53,9 +53,9 @@
     _formView = formView;
     originalPoint_ = _formView.frame.origin;
     
-    if ([UIApplication sharedApplication].statusBarStyle == UIStatusBarStyleDefault && ![UIApplication sharedApplication].statusBarHidden && SB_FORM_SYSTEM_VERSION_GREATER_THAN(@"6.9")) {
-        originalPoint_.y += 20;
-    }
+//    if ([UIApplication sharedApplication].statusBarStyle == UIStatusBarStyleDefault && ![UIApplication sharedApplication].statusBarHidden && SB_FORM_SYSTEM_VERSION_GREATER_THAN(@"6.9")) {
+//        originalPoint_.y += 20;
+//    }
     
 }
 
