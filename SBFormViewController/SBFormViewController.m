@@ -18,6 +18,9 @@
     
     NSTimeInterval animationDuration_;
     UIViewAnimationCurve animationCurve_;
+    
+    CGSize keyboardSize_;
+    
 }
 
 @end
@@ -96,6 +99,7 @@
     NSNumber *curveValue = userInfo[UIKeyboardAnimationCurveUserInfoKey];
     animationCurve_ = curveValue.intValue;
     
+    keyboardSize_ = [userInfo[UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
     
     keyboardShown = YES;
     [self moveViewIfNecesary];
@@ -185,6 +189,19 @@
     //If there is not delta but the view is moved, then we need to get the view down a bit
     if (deltaY == 0 && self.formView.frame.origin.y < originalPoint_.y) {
         deltaY = originY - self.maxYTolerance;
+    }
+    
+    CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
+    
+    if (deltaY > 0 && CGRectGetMaxY(self.formView.frame) - deltaY < CGRectGetHeight(appFrame) - keyboardSize_.height) {
+        
+        if (self.navigationController) {
+            deltaY = originY - keyboardSize_.height - (self.navigationController.isNavigationBarHidden ? 0: self.navigationController.navigationBar.frame.size.height);
+        }else{
+            deltaY = originY - keyboardSize_.height;
+        }
+
+        
     }
     
     
