@@ -101,6 +101,12 @@
     
     keyboardSize_ = [userInfo[UIKeyboardFrameBeginUserInfoKey] CGRectValue].size;
     
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+    if (UIInterfaceOrientationIsLandscape(orientation)) {
+        keyboardSize_ = CGSizeMake(keyboardSize_.height, keyboardSize_.width);
+    }
+    
+    
     keyboardShown = YES;
     [self moveViewIfNecesary];
 }
@@ -175,14 +181,16 @@
     
     UIView *reference = currentField?:currentTextView;
     
-    
+    UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
     
     //Calculate if the field needs to be moved
     int originY = reference.frame.origin.y;
     
-    originY = [self.formView.window convertPoint:CGPointMake(0, originY) fromView:reference.superview].y;
+    UIView *wind = self.formView.superview;
+    originY = [wind convertPoint:CGPointMake(0, originY) fromView:reference.superview].y;
     
     int deltaY = 0;
+    
     if (originY > self.maxYTolerance)
         deltaY = originY - self.maxYTolerance;
     
@@ -190,18 +198,24 @@
     if (deltaY == 0 && self.formView.frame.origin.y < originalPoint_.y) {
         deltaY = originY - self.maxYTolerance;
     }
-    
+
     CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
     
+    if (UIInterfaceOrientationIsLandscape(orientation)) {
+        appFrame.size = CGSizeMake(CGRectGetHeight(appFrame), CGRectGetWidth(appFrame));
+        appFrame.origin = CGPointMake(CGRectGetMinY(appFrame), CGRectGetMinX(appFrame));
+    }
+    
+    // if delta for movement do view move out of keyboard
     if (deltaY > 0 && CGRectGetMaxY(self.formView.frame) - deltaY < CGRectGetHeight(appFrame) - keyboardSize_.height) {
-        
         if (self.navigationController) {
-            deltaY = originY - keyboardSize_.height - (self.navigationController.isNavigationBarHidden ? 0: self.navigationController.navigationBar.frame.size.height);
+            deltaY = CGRectGetMaxY(self.formView.frame) - (CGRectGetHeight(wind.frame) - keyboardSize_.height);
+            deltaY -= ((self.navigationController.isNavigationBarHidden || self.navigationController.navigationBar.isTranslucent) ? 0: self.navigationController.navigationBar.frame.size.height);
+            
         }else{
-            deltaY = originY - keyboardSize_.height;
+            deltaY = CGRectGetMaxY(self.formView.frame) - (CGRectGetHeight(wind.frame) - keyboardSize_.height);
         }
 
-        
     }
     
     
